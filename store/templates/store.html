@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart %}
+{% load custom_filter %}
+{% block nav %}
+<a class="navbar namebar open-slide" href="#" onclick="openSideMenu()" style="font-family: Monoton;">Abhi's Store</a>
+      <div id="side-menu" class="side-nav">
+          <span class="btn-close" onclick="closeSideMenu()"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x-circle-fill" fill="currentColor" style="font-weight: bolder;" xmlns="http://www.w3.org/2000/svg">
+  <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+</svg></span><br><br>
+          {% for category in categories %}
+          <a href="/">All products</a>
+          <a href="/?category={{category.id}}">{{category.name}}</a>
+          {% endfor %}
+      </div>
+{% endblock %}
+{% block content %}
+<div class="HEADING">
+    <h1>BEST DEALS</h1>
+</div>
+
+<div id="products" class="container-fluid">
+    <div class="row mx-auto">
+        {% for product in page_obj %}
+
+
+         <div id='{{product.id}}' class="col-lg-3 col-md-3 col-sm-1" style="width:18rem;">
+
+           {% if product.offer %}
+            <div class="protag">
+              <img src="{% static 'images/offer.png' %}">
+            </div>
+             {% endif %}
+             {% if product.gift %}
+            <div class="protag">
+              <img src="{% static 'images/tag.png' %}">
+            </div>
+             {% endif %}
+
+            <div class="pro">
+              <div class="card" style="width: 18rem;">
+                <img src="{{product.image.url}}" class="card-img-top" alt="image">
+                <div class="card-body">
+                <h5 class="card-title">{{product.name}}</h5>
+                <p class="card-text">{{product.description}}<br><b>{{product.price|currency}} </b></p>
+
+
+                </div>
+                <div class="card-footer p-0 no-gutters ">
+                    {% if product|is_in_cart:request.session.cart %}
+                    <div class="row no-gutters p-0">
+                        <form action="/store?page={{page_obj.number}}"}} class="col-2 p-0" method="post" style="margin-bottom:0em !important;">
+                            {% csrf_token %}
+                            <input hidden type="text" name="product" value='{{product.id}}'>
+                            <input hidden type="text" name="remove" value='True'>
+                            <input type="submit" value=" - " class="btn-secondary form-control p-0">
+                        </form>
+                        <div class="text-center col">{{product|cart_quantity:request.session.cart}} in cart</div>
+                        <form action="/store?page={{page_obj.number}}" class="col-2 p-0" method="post" style="margin-bottom:0em !important;">
+                            {% csrf_token %}
+                            <input hidden type="text" name="product" value='{{product.id}}'>
+                            <input type="submit" value=" + " class="btn-secondary form-control p-0" >
+                        </form>
+                    </div>
+                    {% else %}
+                    <form action="/store?page={{page_obj.number}}" method="POST" class="btn-block p-0">
+                    {% csrf_token %}
+                    <input hidden type="text" name="product" value='{{product.id}}'>
+                    <input type="submit" class=" btn-warning border form-control float-right p-0" value="Add To Cart">
+                    </form>
+                    {% endif %}
+                </div>
+              </div>
+            </div>
+        </div>
+
+        {% endfor %}
+
+
+    </div>
+</div>
+
+
+
+<img src="{% static 'images/division.png' %}" class="storediv" alt="DIVISION">
+<ul class="pagination justify-content-center">
+
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1">first</a>
+        <li class="page-item">
+            <a class="page-link" href="?page={{page_obj.previous_page_number}}">previous</a>
+        </li>
+        {% endif %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{page_obj.number}}">{{page_obj.number}}</a>
+        </li>
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{page_obj.next_page_number}}">next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{page_obj.paginator.num_pages}}">last &raquo;</a>
+        {% endif %}
+        </li>
+</ul>
+  {% endblock %}
+
+
+
